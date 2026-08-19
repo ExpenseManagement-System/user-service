@@ -21,3 +21,6 @@ spring:
 server:
   servlet:
     context-path: /ems
+
+jwt:
+  secret: ${USER_JWT_SECRET}

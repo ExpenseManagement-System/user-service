@@ -1,7 +1,10 @@
 package com.ems.user_service.controller;
 
+import com.ems.user_service.model.dto.LoginRequest;
+import com.ems.user_service.model.dto.LoginResponse;
 import com.ems.user_service.model.dto.RegisterRequestDTO;
 import com.ems.user_service.model.dto.RegisterResponseDTO;
+import com.ems.user_service.service.AuthService;
 import com.ems.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> registerUser(@Valid @RequestBody RegisterRequestDTO request) {
         RegisterResponseDTO response = userService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody LoginRequest request) {
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
