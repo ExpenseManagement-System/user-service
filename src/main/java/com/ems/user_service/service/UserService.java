@@ -5,10 +5,12 @@ import com.ems.user_service.enums.UserStatus;
 import com.ems.user_service.exception.EmailAlreadyExistsException;
 import com.ems.user_service.model.dto.RegisterRequestDTO;
 import com.ems.user_service.model.dto.RegisterResponseDTO;
+import com.ems.user_service.model.dto.UserProfileResponse;
 import com.ems.user_service.model.entity.User;
 import com.ems.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +47,19 @@ public class UserService {
         // kafkaPublisher.publishUserCreatedEvent(savedUser);
 
         return new RegisterResponseDTO(savedUser.getId(), "User registered successfully");
+    }
+
+    public UserProfileResponse getUserProfile(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return new UserProfileResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getCreatedAt()
+        );
+
     }
 }

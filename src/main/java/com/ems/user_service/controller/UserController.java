@@ -1,19 +1,15 @@
 package com.ems.user_service.controller;
 
-import com.ems.user_service.model.dto.LoginRequest;
-import com.ems.user_service.model.dto.LoginResponse;
-import com.ems.user_service.model.dto.RegisterRequestDTO;
-import com.ems.user_service.model.dto.RegisterResponseDTO;
+import com.ems.user_service.model.dto.*;
 import com.ems.user_service.service.AuthService;
 import com.ems.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -30,8 +26,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        UserProfileResponse profile = userService.getUserProfile(userDetails.getUsername());
+        return ResponseEntity.ok(profile);
     }
 }
