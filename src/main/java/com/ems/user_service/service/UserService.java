@@ -3,11 +3,10 @@ package com.ems.user_service.service;
 import com.ems.user_service.enums.Role;
 import com.ems.user_service.enums.UserStatus;
 import com.ems.user_service.exception.EmailAlreadyExistsException;
-import com.ems.user_service.model.dto.RegisterRequest;
-import com.ems.user_service.model.dto.RegisterResponse;
-import com.ems.user_service.model.dto.UserProfileResponse;
+import com.ems.user_service.model.dto.*;
 import com.ems.user_service.model.entity.User;
 import com.ems.user_service.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -60,5 +59,20 @@ public class UserService {
                 user.getCreatedAt()
         );
 
+    }
+
+    @Transactional
+    public UpdateProfileResponse updateProfile(String email, UpdateProfileRequest request){
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email: "+ email));
+        if(request.fullName() != null) {
+            user.setFullName(request.fullName());
+        }
+        // Future fields update logic:
+        // if (request.phoneNumber() != null) user.setPhoneNumber(request.phoneNumber());
+        // if (request.preferredLanguage() != null) user.setPreferredLanguage(request.preferredLanguage());
+
+        userRepository.save(user);
+        return new UpdateProfileResponse("Profile updated successfully");
     }
 }

@@ -36,4 +36,13 @@ public class UserController {
         UserProfileResponse profile = userService.getUserProfile(userDetails.getUsername());
         return ResponseEntity.ok(profile);
     }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UpdateProfileResponse> updateProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UpdateProfileRequest request
+    ) {
+        UpdateProfileResponse response = userService.updateProfile(userDetails.getUsername(), request);
+        return ResponseEntity.ok(response);
+    }
 }
