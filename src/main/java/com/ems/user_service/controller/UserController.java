@@ -38,11 +38,20 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<UpdateProfileResponse> updateProfile(
+    public ResponseEntity<ApiResponse> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
-        UpdateProfileResponse response = userService.updateProfile(userDetails.getUsername(), request);
+        ApiResponse response = userService.updateProfile(userDetails.getUsername(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        ApiResponse response = userService.changePassword(userDetails.getUsername(), request);
         return ResponseEntity.ok(response);
     }
 }

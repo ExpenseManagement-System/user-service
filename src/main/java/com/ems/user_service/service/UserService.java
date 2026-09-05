@@ -3,6 +3,7 @@ package com.ems.user_service.service;
 import com.ems.user_service.enums.Role;
 import com.ems.user_service.enums.UserStatus;
 import com.ems.user_service.exception.EmailAlreadyExistsException;
+import com.ems.user_service.exception.InvalidPasswordException;
 import com.ems.user_service.model.dto.*;
 import com.ems.user_service.model.entity.User;
 import com.ems.user_service.repository.UserRepository;
@@ -19,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public RegisterResponse registerUser(RegisterRequest request) {
 
         // 1. Check if email exists
@@ -62,7 +64,7 @@ public class UserService {
     }
 
     @Transactional
-    public UpdateProfileResponse updateProfile(String email, UpdateProfileRequest request){
+    public ApiResponse updateProfile(String email, UpdateProfileRequest request){
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with email: "+ email));
         if(request.fullName() != null) {
@@ -73,6 +75,28 @@ public class UserService {
         // if (request.preferredLanguage() != null) user.setPreferredLanguage(request.preferredLanguage());
 
         userRepository.save(user);
-        return new UpdateProfileResponse("Profile updated successfully");
+        return new ApiResponse("Profile updated successfully");
+    }
+
+    @Transactional
+    public ApiResponse changePassword(String email, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        // 1. Verify old password using BCrypt
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("Old password is incorrect");
+        }
+
+        // 2. Prevent reusing the current password
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("New password cannot be the same as the old password");
+        }
+
+        // 3. Encrypt and save new password
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        return new ApiResponse("Password changed successfully");
     }
 }

@@ -40,4 +40,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", "Account is disabled. Please contact support."));
     }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidPassword(InvalidPasswordException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage()));
+    }
 }
